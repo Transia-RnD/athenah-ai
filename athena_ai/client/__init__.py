@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import os
-import sys
+import logging
 from typing import Dict, Any, List
 
 from dotenv import load_dotenv
@@ -22,6 +22,8 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 from athena_ai.client.athena_local_store import AthenaLocalStore
+
+logger = logging.getLogger("app")
 
 
 def get_token_total(prompt: str) -> int:
@@ -95,7 +97,7 @@ class AthenaClient(AthenaLocalStore):
         )
 
         num_indexs = cls.db.index_to_docstore_id
-        print(f"DB INDEXS: {len(num_indexs)}")
+        logger.debug(f"DB INDEXS: {len(num_indexs)}")
         retriever = cls.db.as_retriever()
 
         system_prompt = "{context}"

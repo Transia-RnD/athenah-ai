@@ -104,7 +104,7 @@ class BaseIndexClient(object):
             # if count > 10:
             #     break
             file_name = doc.metadata["source"]
-            print(file_name)
+            logger.debug(file_name)
             if ".cpp" in file_name or ".h" in file_name:
                 file_name = file_name + "\n\n"
                 splitter: RecursiveCharacterTextSplitter = code_splitter(
@@ -158,7 +158,7 @@ class BaseIndexClient(object):
             model=EMBEDDING_MODEL,
             chunk_size=1000,
         )
-        # print(cls.splited_docs)
+        logger.debug(cls.splited_docs)
         return FAISS.from_texts(
             cls.splited_docs, embedding=embedder, metadatas=cls.splited_metadatas
         )

@@ -18,7 +18,6 @@ class AthenaLocalStore(object):
     def load(cls, dir: str, name: str, version: str) -> FAISS:
         embedder = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
         cls.base_path: str = os.path.join(basedir, dir)
-        print(f"BASE: {cls.base_path}")
         cls.name_path: str = os.path.join(cls.base_path, name)
         cls.name_version_path: str = os.path.join(cls.base_path, f"{name}-{version}")
         return FAISS.load_local(
