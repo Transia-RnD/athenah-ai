@@ -54,6 +54,7 @@ class BaseIndexClient(object):
             shutil.copyfile(source, destination)
 
     def clean(cls, root: str) -> Dict[str, Any]:
+        logger.debug(f"CLEAN: {root}")
         all_files = []
         ignore_folders = [".git"]
         logger.debug("Finding all files in the root folder...")
@@ -99,10 +100,7 @@ class BaseIndexClient(object):
             doc.metadata["source"] = doc.metadata["source"].strip(".txt")
 
         logger.debug(f"DOCS: {len(docs)}")
-        # count = 0
         for doc in docs:
-            # if count > 10:
-            #     break
             file_name = doc.metadata["source"]
             logger.debug(file_name)
             if ".cpp" in file_name or ".h" in file_name:
@@ -132,8 +130,6 @@ class BaseIndexClient(object):
             cls.splited_docs.extend(splits)
             cls.splited_metadatas.extend([doc.metadata] * len(splits))
 
-            # count += 1
-
     def build(cls):
         embedder = OpenAIEmbeddings(
             openai_api_key=OPENAI_API_KEY,
@@ -147,9 +143,7 @@ class BaseIndexClient(object):
 
     def build_batch(cls, paths: List[str]):
         for path in paths:
-            logger.debug(f"CLEANING PATH: {path}")
             cls.clean(path)
-            logger.debug(f"PREPARING PATH: {path}")
             cls.prepare(path)
 
         # Build All Indexes
