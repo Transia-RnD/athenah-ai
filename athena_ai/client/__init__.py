@@ -125,10 +125,10 @@ class AthenaClient(AthenaLocalStore):
                 messages=messages,
                 temperature=cls.temperature,
                 max_tokens=cls.max_tokens,
-                # top_p=cls.top_p,
-                # n=cls.best_of,
-                # frequency_penalty=cls.frequency_penalty,
-                # presence_penalty=cls.presence_penalty,
+                top_p=cls.top_p,
+                n=cls.best_of,
+                frequency_penalty=cls.frequency_penalty,
+                presence_penalty=cls.presence_penalty,
             )
             assistant_reply = response.choices[0].message.content
             return assistant_reply
