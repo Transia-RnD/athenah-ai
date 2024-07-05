@@ -16,13 +16,17 @@ from athena_ai.indexer.base_index_client import BaseIndexClient
 logger = logging.getLogger("app")
 
 
-class LocalIndexClient(BaseIndexClient):
+class IndexClient(BaseIndexClient):
+    storage_type: str = "local"  # local or gcs
     id: str = ""
     dir: str = ""
     name: str = ""
     version: str = ""
 
-    def __init__(cls, id: str, dir: str, name: str, version: str = "v1") -> None:
+    def __init__(
+        cls, storage_type: str, id: str, dir: str, name: str, version: str = "v1"
+    ) -> None:
+        cls.storage_type = storage_type
         cls.id = id
         cls.dir = dir
         cls.name = name
