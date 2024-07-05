@@ -1,0 +1,14 @@
+
+.DS_Store
+__pycache__
+.pytest_cache
+.venv
+/dist
+.env
+
+bot-*/
+
+credentials.development.json
+credentials.production.json
+
+playground.py
