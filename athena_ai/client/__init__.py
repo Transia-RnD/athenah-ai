@@ -47,6 +47,7 @@ class AthenaClient(VectorStore):
     frequency_penalty: float = 0
     presence_penalty: float = 0
     stop: List[str] = []
+
     has_history: bool = False
     chat_history: List[str] = []
     db: FAISS = None
