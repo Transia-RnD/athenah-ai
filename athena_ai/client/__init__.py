@@ -21,7 +21,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
-from athena_ai.client.athena_local_store import AthenaLocalStore
+from athena_ai.client.vector_store import VectorStore
 
 logger = logging.getLogger("app")
 
@@ -34,9 +34,11 @@ def get_token_total(prompt: str) -> int:
     return len(encoding.encode(prompt))
 
 
-class AthenaClient(AthenaLocalStore):
+class AthenaClient(VectorStore):
+    id: str = ""
     model_group: str = "dist"
     custom_model: str = ""
+    version: str = "v1"
     model_name: str = "gpt-4"
     temperature: float = 0
     max_tokens: int = 600
@@ -54,6 +56,7 @@ class AthenaClient(AthenaLocalStore):
         id: str,
         model_group: str = "dist",
         custom_model: str = "",
+        version: str = "v1",
         model_name: str = "gpt-4",
         temperature: float = 0,
         max_tokens: int = 1200,
@@ -66,6 +69,7 @@ class AthenaClient(AthenaLocalStore):
         cls.id = id
         cls.model_group = model_group
         cls.custom_model = custom_model
+        cls.version = version
         cls.model_name = model_name
         cls.temperature = temperature
         cls.max_tokens = max_tokens
@@ -75,10 +79,10 @@ class AthenaClient(AthenaLocalStore):
         cls.presence_penalty = presence_penalty
         cls.stop = stop
 
-        super().__init__()
+        super().__init__(storage_type="local" if model_group == "dist" else "gcs")
 
         if cls.model_group and cls.custom_model:
-            cls.db = cls.load(model_group, custom_model, "v1")
+            cls.db = cls.load(cls.custom_model, cls.model_group, cls.version)
 
         pass
 
