@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import logging
 from typing import Dict, Any, List
@@ -22,8 +19,7 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 from athena_ai.client.vector_store import VectorStore
-
-logger = logging.getLogger("app")
+from athena_ai.logger import logger
 
 
 def get_token_total(prompt: str) -> int:
@@ -35,6 +31,27 @@ def get_token_total(prompt: str) -> int:
 
 
 class AthenaClient(VectorStore):
+    """
+    A client for interacting with the Athena AI chat model.
+
+    Attributes:
+        id (str): The ID of the client.
+        model_group (str): The model group to use for the chat model.
+        custom_model (str): The custom model to use for the chat model.
+        version (str): The version of the chat model.
+        model_name (str): The name of the chat model.
+        temperature (float): The temperature parameter for generating responses.
+        max_tokens (int): The maximum number of tokens for generating responses.
+        top_p (int): The top-p parameter for generating responses.
+        best_of (int): The best-of parameter for generating responses.
+        frequency_penalty (float): The frequency penalty parameter for generating responses.
+        presence_penalty (float): The presence penalty parameter for generating responses.
+        stop (List[str]): The list of stop words for generating responses.
+        has_history (bool): Whether the client has chat history.
+        chat_history (List[str]): The chat history of the client.
+        db (FAISS): The FAISS vector store for document retrieval.
+    """
+
     id: str = ""
     model_group: str = "dist"
     custom_model: str = ""
@@ -67,6 +84,23 @@ class AthenaClient(VectorStore):
         presence_penalty: float = 0,
         stop: List[str] = [],
     ):
+        """
+        Initializes the AthenaClient.
+
+        Args:
+            id (str): The ID of the client.
+            model_group (str): The model group to use for the chat model.
+            custom_model (str): The custom model to use for the chat model.
+            version (str): The version of the chat model.
+            model_name (str): The name of the chat model.
+            temperature (float): The temperature parameter for generating responses.
+            max_tokens (int): The maximum number of tokens for generating responses.
+            top_p (int): The top-p parameter for generating responses.
+            best_of (int): The best-of parameter for generating responses.
+            frequency_penalty (float): The frequency penalty parameter for generating responses.
+            presence_penalty (float): The presence penalty parameter for generating responses.
+            stop (List[str]): The list of stop words for generating responses.
+        """
         cls.id = id
         cls.model_group = model_group
         cls.custom_model = custom_model
@@ -87,7 +121,16 @@ class AthenaClient(VectorStore):
 
         pass
 
-    def prompt(cls, prompt: str):
+    def prompt(cls, prompt: str) -> str:
+        """
+        Generates a response to the given prompt.
+
+        Args:
+            prompt (str): The prompt to generate a response to.
+
+        Returns:
+            str: The generated response.
+        """
         cls.openai = ChatOpenAI(
             openai_api_key=OPENAI_API_KEY,
             model_name=cls.model_name,
@@ -102,7 +145,7 @@ class AthenaClient(VectorStore):
         )
 
         num_indexs = cls.db.index_to_docstore_id
-        logger.debug(f"DB INDEXS: {len(num_indexs)}")
+        logger.info(f"DB INDEXS: {len(num_indexs)}")
         retriever = cls.db.as_retriever()
 
         system_prompt = "{context}"
@@ -117,7 +160,17 @@ class AthenaClient(VectorStore):
         response = rag_chain.invoke({"input": prompt})
         return response["answer"]
 
-    def base_prompt(cls, system: str = None, prompt: str = None):
+    def base_prompt(cls, system: str = None, prompt: str = None) -> str:
+        """
+        Generates a response to the given system and prompt.
+
+        Args:
+            system (str): The system message.
+            prompt (str): The user prompt.
+
+        Returns:
+            str: The generated response.
+        """
         try:
             messages: List[Dict[str, Any]] = []
             if isinstance(system, str) and system != "":

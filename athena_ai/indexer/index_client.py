@@ -13,8 +13,6 @@ from langchain_community.vectorstores import FAISS
 
 from athena_ai.indexer.base_index_client import BaseIndexClient
 
-logger = logging.getLogger("app")
-
 
 class IndexClient(BaseIndexClient):
     storage_type: str = "local"  # local or gcs
@@ -39,7 +37,6 @@ class IndexClient(BaseIndexClient):
         )
         os.makedirs(cls.base_path, exist_ok=True)
         os.makedirs(cls.name_path, exist_ok=True)
-        os.makedirs(cls.name_version_path, exist_ok=True)
         super().__init__(cls.storage_type, cls.id, cls.dir, cls.name, cls.version)
 
     def copy(cls, source: str, dest: str, is_dir: bool = False):
@@ -48,22 +45,31 @@ class IndexClient(BaseIndexClient):
                 source,
                 dest,
                 dirs_exist_ok=True,
-                ignore=ignore_patterns("node_modules*", "dist*", "build*", ".git*"),
+                ignore=ignore_patterns(
+                    "node_modules*",
+                    "dist*",
+                    "build*",
+                    ".git*",
+                    ".venv*",
+                    ".vscode*",
+                    "__pycache__*",
+                    "poetry.lock",
+                ),
             )
         else:
             file_name: str = source.split("/")[-1]
             shutil.copyfile(source, f"{dest}/{file_name}")
 
-    def build(cls, name: str, folders: List[str] = None):
+    def build(cls, name: str, folders: List[str] = None, full: bool = False):
         if type(folders) == list:
             build_paths: List[str] = [f"{cls.name_path}/{name}/{f}" for f in folders]
-            store: FAISS = cls.build_batch(build_paths)
+            store: FAISS = cls.build_batch(build_paths, full)
             cls.save(store)
             return store
 
         elif not folders:
             cls.clean(cls.name_path)
-            cls.prepare(cls.name_path)
+            cls.prepare(cls.name_path, full)
             store: FAISS = cls.build()
             cls.save(store)
             return store
