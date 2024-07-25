@@ -11,7 +11,7 @@ from basedir import basedir
 
 from langchain_community.vectorstores import FAISS
 
-from athena_ai.indexer.base_index_client import BaseIndexClient
+from athenah_ai.indexer.base_index_client import BaseIndexClient
 
 
 class IndexClient(BaseIndexClient):

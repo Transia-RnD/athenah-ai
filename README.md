@@ -35,8 +35,8 @@ pip install -r requirements.txt
 Athena AI provides an easy-to-use interface for interacting with the AI model. Here is an example of how to build an index and initialize the client:
 
 ```python
-from athena_ai.indexer import AthenaIndexer
-from athena_ai.client import AthenaClient
+from athenah_ai.indexer import AthenaIndexer
+from athenah_ai.client import AthenaClient
 
 # Define the path to your project
 path: str = '/Users/darkmatter/projects/transia/athena-ai'

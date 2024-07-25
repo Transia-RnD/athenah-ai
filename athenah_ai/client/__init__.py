@@ -19,8 +19,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
-from athena_ai.client.vector_store import VectorStore
-from athena_ai.logger import logger
+from athenah_ai.client.vector_store import VectorStore
+from athenah_ai.logger import logger
 
 
 def get_token_total(prompt: str) -> int:

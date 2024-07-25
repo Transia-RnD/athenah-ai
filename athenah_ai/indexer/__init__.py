@@ -8,8 +8,8 @@ from typing import List
 from basedir import basedir
 from dotenv import load_dotenv
 
-from athena_ai.indexer.index_client import IndexClient
-from athena_ai.logger import logger
+from athenah_ai.indexer.index_client import IndexClient
+from athenah_ai.logger import logger
 
 load_dotenv()
 

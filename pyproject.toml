@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "athena-ai"
+name = "athenah-ai"
 version = "0.0.1"
 description = ""
 authors = ["Denis Angell <dangell@transia.co>"]

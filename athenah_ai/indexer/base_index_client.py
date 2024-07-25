@@ -15,9 +15,9 @@ from langchain_text_splitters import Language
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
-from athena_ai.client import AthenaClient
-from athena_ai.indexer.splitters import code_splitter, text_splitter
-from athena_ai.logger import logger
+from athenah_ai.client import AthenaClient
+from athenah_ai.indexer.splitters import code_splitter, text_splitter
+from athenah_ai.logger import logger
 
 EMBEDDING_MODEL: str = "text-embedding-3-large"
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")

@@ -4,9 +4,9 @@
 import os
 from typing import Dict, Any, List
 
-from athena_ai.utils.fs import write_file, read_file
-from athena_ai.client import AthenaClient, get_token_total
-from athena_ai.logger import logger
+from athenah_ai.utils.fs import write_file, read_file
+from athenah_ai.client import AthenaClient, get_token_total
+from athenah_ai.logger import logger
 
 
 class AthenaLabeler(object):
