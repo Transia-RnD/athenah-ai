@@ -10,6 +10,7 @@ OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 import openai
 
 openai.api_key = OPENAI_API_KEY
+OPENAI_API_MODEL: str = "gpt-4o-mini"
 MAX_TOKENS: int = 2000
 
 from langchain_openai import ChatOpenAI
@@ -25,7 +26,7 @@ from athena_ai.logger import logger
 def get_token_total(prompt: str) -> int:
     import tiktoken
 
-    openai_model = "gpt-4"
+    openai_model = OPENAI_API_MODEL
     encoding = tiktoken.encoding_for_model(openai_model)
     return len(encoding.encode(prompt))
 
@@ -56,7 +57,7 @@ class AthenaClient(VectorStore):
     model_group: str = "dist"
     custom_model: str = ""
     version: str = "v1"
-    model_name: str = "gpt-4"
+    model_name: str = OPENAI_API_MODEL
     temperature: float = 0
     max_tokens: int = 600
     top_p: int = 1
@@ -75,7 +76,7 @@ class AthenaClient(VectorStore):
         model_group: str = "dist",
         custom_model: str = "",
         version: str = "v1",
-        model_name: str = "gpt-4",
+        model_name: str = OPENAI_API_MODEL,
         temperature: float = 0,
         max_tokens: int = 1200,
         top_p: int = 1,

@@ -19,7 +19,7 @@ from athena_ai.client import AthenaClient
 from athena_ai.indexer.splitters import code_splitter, text_splitter
 from athena_ai.logger import logger
 
-EMBEDDING_MODEL: str = "text-embedding-3-small"
+EMBEDDING_MODEL: str = "text-embedding-3-large"
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 
 
@@ -50,7 +50,7 @@ def summarize_file(content: str):
 #         )
 #         return response
 
-chunk_size: int = 5000
+chunk_size: int = 2000
 chunk_overlap: int = 1000
 
 
@@ -172,19 +172,20 @@ class BaseIndexClient(object):
 
             splits = splitter.split_text(doc.page_content)
             for index, split in enumerate(splits):
-                chunk_metadata = {
-                    "source": file_name.split("/")[-1],
-                    "file_type": file_type,
-                    "chunk_index": index,
-                    "total_chunks": len(splits),
-                }
-                if file_summary:
-                    chunk_metadata["file_summary"] = file_summary
-                if functions:
-                    chunk_metadata["functions"] = functions
+                if split.strip():
+                    chunk_metadata = {
+                        "source": file_name.split("/")[-1],
+                        "file_type": file_type,
+                        "chunk_index": index,
+                        "total_chunks": len(splits),
+                    }
+                    if file_summary:
+                        chunk_metadata["file_summary"] = file_summary
+                    if functions:
+                        chunk_metadata["functions"] = functions
 
-                cls.splited_docs.append(split)
-                cls.splited_metadatas.append(chunk_metadata)
+                    cls.splited_docs.append(split)
+                    cls.splited_metadatas.append(chunk_metadata)
 
     def build(cls):
         embedder = OpenAIEmbeddings(
@@ -207,6 +208,8 @@ class BaseIndexClient(object):
             model=EMBEDDING_MODEL,
             chunk_size=chunk_size,
         )
+        logger.info(len(cls.splited_docs))
+        logger.info(len(cls.splited_metadatas))
         logger.debug(cls.splited_docs)
         return FAISS.from_texts(
             cls.splited_docs, embedding=embedder, metadatas=cls.splited_metadatas
