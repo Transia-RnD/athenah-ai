@@ -2,7 +2,6 @@
 # coding: utf-8
 
 import os
-import logging
 from typing import Dict, Any, List
 import shutil
 
@@ -19,8 +18,10 @@ from athenah_ai.client import AthenaClient
 from athenah_ai.indexer.splitters import code_splitter, text_splitter
 from athenah_ai.logger import logger
 
-EMBEDDING_MODEL: str = "text-embedding-3-large"
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
+EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")
+CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE"))
+chunk_overlap: int = 0
 
 
 def summarize_file(content: str):
@@ -30,7 +31,8 @@ def summarize_file(content: str):
             Describe and summarize what this document says.
             Be very specific.
             Everything must be documented.
-            Keep it very short and concise, this will be used for labeling a vector search.
+            Keep it very short and concise,
+            this will be used for labeling a vector search.
             """,
         content,
     )
@@ -49,9 +51,6 @@ def summarize_file(content: str):
 #             content,
 #         )
 #         return response
-
-chunk_size: int = 2000
-chunk_overlap: int = 1000
 
 
 class BaseIndexClient(object):
@@ -157,16 +156,14 @@ class BaseIndexClient(object):
                 file_type = "text"
 
             if language:
-                # file_summary = summarize_file(doc.page_content) if full else None
-                # functions = extract_functions(doc.page_content, file_type) if full else None
                 splitter: RecursiveCharacterTextSplitter = code_splitter(
                     language,
-                    chunk_size=chunk_size,
+                    chunk_size=CHUNK_SIZE,
                     chunk_overlap=chunk_overlap,
                 )
             else:
                 splitter: RecursiveCharacterTextSplitter = text_splitter(
-                    chunk_size=chunk_size,
+                    chunk_size=CHUNK_SIZE,
                     chunk_overlap=chunk_overlap,
                 )
 
@@ -186,15 +183,21 @@ class BaseIndexClient(object):
 
                     cls.splited_docs.append(split)
                     cls.splited_metadatas.append(chunk_metadata)
+                    # Save split to file
+                    split_file_path = os.path.join(
+                        cls.name_version_path, f"split_{index}.txt"
+                    )
+                    with open(split_file_path, "w") as split_file:
+                        split_file.write(split)
 
-    def build(cls):
+    def build_one(cls):
         embedder = OpenAIEmbeddings(
             openai_api_key=OPENAI_API_KEY,
             model=EMBEDDING_MODEL,
-            chunk_size=chunk_size,
+            chunk_size=CHUNK_SIZE,
         )
 
-        return FAISS.from_documents(
+        return FAISS.from_texts(
             cls.splited_docs, embedding=embedder, metadatas=cls.splited_metadatas
         )
 
@@ -206,7 +209,7 @@ class BaseIndexClient(object):
         embedder = OpenAIEmbeddings(
             openai_api_key=OPENAI_API_KEY,
             model=EMBEDDING_MODEL,
-            chunk_size=chunk_size,
+            chunk_size=CHUNK_SIZE,
         )
         logger.info(len(cls.splited_docs))
         logger.info(len(cls.splited_metadatas))

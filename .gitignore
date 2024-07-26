@@ -11,6 +11,4 @@ bot-*/
 credentials.development.json
 credentials.production.json
 
-playground.py
-image.py
-xahaud.py
+playgrounds

@@ -29,7 +29,7 @@ def write_json(data: Dict[str, object], path: str):
 
     :rtype: None
     """
-    with open(path, 'w') as json_file:
+    with open(path, "w") as json_file:
         json.dump(data, json_file)
 
 

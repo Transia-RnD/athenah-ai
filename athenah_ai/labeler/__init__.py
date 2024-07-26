@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import os
-from typing import Dict, Any, List
+from typing import List
 
 from athenah_ai.utils.fs import write_file, read_file
 from athenah_ai.client import AthenaClient, get_token_total
@@ -64,7 +64,8 @@ class AthenaLabeler(object):
 
     def docstring_code(cls, filename: str, content: str):
         prompt = """
-        You are a documentation ai bot. Your job is to accurately document code to docstring standards for the type of code provided.
+        You are a documentation ai bot. Your job is to accurately document code to
+        docstring standards for the type of code provided.
         """
         try:
             response = cls.ai_client.base_prompt(prompt, content)
@@ -75,7 +76,8 @@ class AthenaLabeler(object):
     def sumarize_code(cls, dir: str, folders: List[str] = []):
         skip_files: List[str] = []
         prompt = """
-        Describe what each function in this code does. Be very specific. Every function must be documented.
+        Describe what each function in this code does. Be very specific.
+        Every function must be documented.
         """
 
         if folders:
@@ -88,6 +90,7 @@ class AthenaLabeler(object):
     def sumarize_text(cls, dir: str):
         skip_files: List[str] = []
         prompt = """
-        Describe and summarize what this file says. Be very specific. Everything must be documented.
+        Describe and summarize what this file says. Be very specific.
+        Everything must be documented.
         """
         cls.process_directory(cls.ai_client, dir, prompt, skip_files)

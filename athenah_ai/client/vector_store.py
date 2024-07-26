@@ -9,6 +9,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
+EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")
+CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE"))
 
 
 class VectorStore(object):
@@ -27,7 +29,11 @@ class VectorStore(object):
             )
 
     def load_local(cls, dir: str, name: str, version: str) -> FAISS:
-        embedder = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+        embedder = OpenAIEmbeddings(
+            openai_api_key=OPENAI_API_KEY,
+            model=EMBEDDING_MODEL,
+            chunk_size=CHUNK_SIZE,
+        )
         cls.base_path: str = os.path.join(basedir, dir)
         cls.name_path: str = os.path.join(cls.base_path, name)
         cls.name_version_path: str = os.path.join(cls.base_path, f"{name}-{version}")

@@ -1,26 +1,28 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+
 import os
-import logging
 from typing import Dict, Any, List
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
-OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 import openai
-
-openai.api_key = OPENAI_API_KEY
-OPENAI_API_MODEL: str = "gpt-4o-mini"
-MAX_TOKENS: int = 2000
 
 from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import FAISS
-from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-
+from langchain import hub
 from athenah_ai.client.vector_store import VectorStore
 from athenah_ai.logger import logger
+
+load_dotenv()
+
+OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
+openai.api_key = OPENAI_API_KEY
+OPENAI_API_MODEL: str = "gpt-4o-mini"
+MAX_TOKENS: int = 2000
 
 
 def get_token_total(prompt: str) -> int:
@@ -45,8 +47,10 @@ class AthenaClient(VectorStore):
         max_tokens (int): The maximum number of tokens for generating responses.
         top_p (int): The top-p parameter for generating responses.
         best_of (int): The best-of parameter for generating responses.
-        frequency_penalty (float): The frequency penalty parameter for generating responses.
-        presence_penalty (float): The presence penalty parameter for generating responses.
+        frequency_penalty (float): The frequency penalty parameter for generating
+        responses.
+        presence_penalty (float): The presence penalty parameter for generating
+        responses.
         stop (List[str]): The list of stop words for generating responses.
         has_history (bool): Whether the client has chat history.
         chat_history (List[str]): The chat history of the client.
@@ -98,8 +102,10 @@ class AthenaClient(VectorStore):
             max_tokens (int): The maximum number of tokens for generating responses.
             top_p (int): The top-p parameter for generating responses.
             best_of (int): The best-of parameter for generating responses.
-            frequency_penalty (float): The frequency penalty parameter for generating responses.
-            presence_penalty (float): The presence penalty parameter for generating responses.
+            frequency_penalty (float): The frequency penalty parameter for generating
+            responses.
+            presence_penalty (float): The presence penalty parameter for generating
+            responses.
             stop (List[str]): The list of stop words for generating responses.
         """
         cls.id = id
@@ -148,15 +154,13 @@ class AthenaClient(VectorStore):
         num_indexs = cls.db.index_to_docstore_id
         logger.info(f"DB INDEXS: {len(num_indexs)}")
         retriever = cls.db.as_retriever()
+        # similar_docs = cls.db.similarity_search_with_relevance_scores("ripple", k=3)
+        # print(similar_docs)
 
-        system_prompt = "{context}"
-        _prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", system_prompt),
-                ("human", "{input}"),
-            ]
+        retrieval_qa_chat_prompt = hub.pull("langchain-ai/retrieval-qa-chat")
+        question_answer_chain = create_stuff_documents_chain(
+            cls.openai, retrieval_qa_chat_prompt
         )
-        question_answer_chain = create_stuff_documents_chain(cls.openai, _prompt)
         rag_chain = create_retrieval_chain(retriever, question_answer_chain)
         response = rag_chain.invoke({"input": prompt})
         return response["answer"]

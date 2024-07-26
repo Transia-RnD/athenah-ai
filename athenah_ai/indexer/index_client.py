@@ -2,8 +2,7 @@
 # coding: utf-8
 
 import os
-import logging
-from typing import List
+from typing import List, Union
 import shutil
 from shutil import ignore_patterns
 
@@ -57,20 +56,22 @@ class IndexClient(BaseIndexClient):
                 ),
             )
         else:
+            os.makedirs(dest, exist_ok=True)
             file_name: str = source.split("/")[-1]
             shutil.copyfile(source, f"{dest}/{file_name}")
 
-    def build(cls, name: str, folders: List[str] = None, full: bool = False):
-        if type(folders) == list:
+    def build(
+        cls, name: str, folders: Union[List[str], str] = None, full: bool = False
+    ):
+        if type(folders) is list:
             build_paths: List[str] = [f"{cls.name_path}/{name}/{f}" for f in folders]
             store: FAISS = cls.build_batch(build_paths, full)
             cls.save(store)
             return store
-
-        elif not folders:
+        elif type(folders) is str or not folders:
             cls.clean(cls.name_path)
             cls.prepare(cls.name_path, full)
-            store: FAISS = cls.build()
+            store: FAISS = cls.build_one()
             cls.save(store)
             return store
 
