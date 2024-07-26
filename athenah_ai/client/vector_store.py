@@ -74,6 +74,6 @@ class VectorStore(object):
             chunk_size=CHUNK_SIZE,
         )
         blob = cls.bucket.blob(f"{name}.faiss")
-        blob.download_to_filename(f"/tmp/index.faiss")
-        index = faiss.read_index(f"/tmp/index.faiss")
+        blob.download_to_filename("/tmp/index.faiss")
+        index = faiss.read_index("/tmp/index.faiss")
         return FAISS(embedder, index, docstore, index_to_docstore_id)

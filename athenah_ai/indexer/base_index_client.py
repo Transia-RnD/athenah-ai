@@ -241,7 +241,7 @@ class BaseIndexClient(object):
             data_byte_array = pickle.dumps((store.docstore, store.index_to_docstore_id))
             blob: Blob = cls.bucket.blob(f"{cls.name}.pkl")
             blob.upload_from_string(data_byte_array)
-            temp_file_name = f"/tmp/index.faiss"
+            temp_file_name = "/tmp/index.faiss"
             faiss.write_index(store.index, temp_file_name)
             blob: Blob = cls.bucket.blob(f"{cls.name}.faiss")
             blob.upload_from_filename(temp_file_name)
