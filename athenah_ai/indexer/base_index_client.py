@@ -4,6 +4,8 @@
 import os
 from typing import Dict, Any, List
 import shutil
+import faiss
+import pickle
 
 from basedir import basedir
 
@@ -14,13 +16,17 @@ from langchain_text_splitters import Language
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
+from google.cloud.storage.bucket import Bucket, Blob
+from athenah_ai.libs.google.storage import GCPStorageClient
+
 from athenah_ai.client import AthenahClient
 from athenah_ai.indexer.splitters import code_splitter, text_splitter
 from athenah_ai.logger import logger
 
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")
-CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE"))
+CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE", 2000))
+GCP_INDEX_BUCKET: str = os.environ.get("GCP_INDEX_BUCKET", "athenah-ai-indexes")
 chunk_overlap: int = 0
 
 
@@ -77,7 +83,10 @@ class BaseIndexClient(object):
         os.makedirs(cls.name_version_path, exist_ok=True)
         cls.splited_docs: List[str] = []
         cls.splited_metadatas: List[str] = []
-        return
+        if cls.storage_type == "gcs":
+            cls.storage_client: GCPStorageClient = GCPStorageClient().add_client()
+            cls.bucket: Bucket = cls.storage_client.init_bucket(GCP_INDEX_BUCKET)
+        pass
 
     def copy(cls, source: str, destination: str, is_dir: bool = False):
         if is_dir:
@@ -223,4 +232,17 @@ class BaseIndexClient(object):
         store: FAISS = None,
     ):
         if cls.storage_type == "local":
+            logger.info("SAVING LOCAL FAISS")
             store.save_local(cls.name_version_path)
+            return
+
+        if cls.storage_type == "gcs":
+            logger.info("SAVING GCS FAISS")
+            data_byte_array = pickle.dumps((store.docstore, store.index_to_docstore_id))
+            blob: Blob = cls.bucket.blob(f"{cls.name}.pkl")
+            blob.upload_from_string(data_byte_array)
+            temp_file_name = f"/tmp/index.faiss"
+            faiss.write_index(store.index, temp_file_name)
+            blob: Blob = cls.bucket.blob(f"{cls.name}.faiss")
+            blob.upload_from_filename(temp_file_name)
+            return

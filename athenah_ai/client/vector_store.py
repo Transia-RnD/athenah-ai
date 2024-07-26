@@ -2,15 +2,27 @@
 # coding: utf-8
 
 import os
+from io import BytesIO
+import faiss
+import pickle
 
 from basedir import basedir
 
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
+from cachetools import cached, TTLCache
+
+from google.cloud.storage.bucket import Bucket
+from athenah_ai.libs.google.storage import GCPStorageClient
+from athenah_ai.logger import logger
+
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")
-CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE"))
+CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE", 2000))
+GCP_INDEX_BUCKET: str = os.environ.get("GCP_INDEX_BUCKET", "athenah-ai-indexes")
+
+cache = TTLCache(maxsize=100, ttl=3600)
 
 
 class VectorStore(object):
@@ -22,10 +34,19 @@ class VectorStore(object):
 
     def load(cls, name: str, dir: str = "dist", version: str = "v1") -> FAISS:
         if cls.storage_type == "local":
+            logger.info("LOADING LOCAL FAISS")
             return cls.load_local(
                 dir,
                 name,
                 version,
+            )
+
+        if cls.storage_type == "gcs":
+            logger.info("LOADING GCS FAISS")
+            cls.storage_client: GCPStorageClient = GCPStorageClient().add_client()
+            cls.bucket: Bucket = cls.storage_client.init_bucket(GCP_INDEX_BUCKET)
+            return cls.load_gcs(
+                name,
             )
 
     def load_local(cls, dir: str, name: str, version: str) -> FAISS:
@@ -40,3 +61,19 @@ class VectorStore(object):
         return FAISS.load_local(
             f"{cls.name_version_path}", embedder, allow_dangerous_deserialization=True
         )
+
+    @cached(cache)
+    def load_gcs(cls, name: str) -> FAISS:
+        blob = cls.bucket.blob(f"{name}.pkl")
+        data_byte_array = BytesIO()
+        blob.download_to_file(data_byte_array)
+        docstore, index_to_docstore_id = pickle.loads(data_byte_array.getvalue())
+        embedder = OpenAIEmbeddings(
+            openai_api_key=OPENAI_API_KEY,
+            model=EMBEDDING_MODEL,
+            chunk_size=CHUNK_SIZE,
+        )
+        blob = cls.bucket.blob(f"{name}.faiss")
+        blob.download_to_filename(f"/tmp/index.faiss")
+        index = faiss.read_index(f"/tmp/index.faiss")
+        return FAISS(embedder, index, docstore, index_to_docstore_id)

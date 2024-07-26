@@ -30,7 +30,36 @@ cd athenah-ai
 pip install -r requirements.txt
 ```
 
-## Using Athenah AI
+## Using Athenah AI (Google Cloud Storage)
+
+Athenah AI provides an easy-to-use interface for interacting with the AI model. Here is an example of how to build an index and initialize the client:
+
+First you need to tell athenah where the credentials are:
+
+`export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/credentials.json"`
+
+```python
+from athenah_ai.indexer import AthenahIndexer
+from athenah_ai.client import AthenahClient
+
+# Define the path to your project
+path: str = '/Users/darkmatter/projects/transia/athenah-ai'
+
+# Initialize the indexer (use gcs for storage type)
+indexer = AthenahIndexer('gcs', 'id', 'dist', 'athenah', 'v1')
+
+# Build the index
+indexer.index_dir(path, ['.'], 'athenah')
+
+# Initialize the client (use /tmp for gcs)
+client = AthenahClient('id', '/tmp', 'athenah')
+
+# Send a prompt to the model and print the response
+response = client.prompt("For the Using Athenah AI part of the readme include ")
+print(response)
+```
+
+## Using Athenah AI (Local)
 
 Athenah AI provides an easy-to-use interface for interacting with the AI model. Here is an example of how to build an index and initialize the client:
 
