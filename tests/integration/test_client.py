@@ -7,8 +7,8 @@ import logging
 
 from testing_config import BaseTestConfig
 
-from athenah_ai.indexer import AthenaIndexer
-from athenah_ai.client import AthenaClient
+from athenah_ai.indexer import AthenahIndexer
+from athenah_ai.client import AthenahClient
 
 
 # Create Logger
@@ -23,8 +23,8 @@ class TestIndexer(BaseTestConfig):
     )
 
     def test_client(cls):
-        indexer = AthenaIndexer("local", "id", "dist", "test_index_file", "v1")
+        indexer = AthenahIndexer("local", "id", "dist", "test_index_file", "v1")
         indexer.index_file(cls.file_path, "test_index_file")
-        client = AthenaClient("id", "dist", "test_index_file", "v1")
+        client = AthenahClient("id", "dist", "test_index_file", "v1")
         response = client.prompt(cls.prompt)
         cls.assertEqual(response, cls.response)

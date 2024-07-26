@@ -33,9 +33,9 @@ def get_token_total(prompt: str) -> int:
     return len(encoding.encode(prompt))
 
 
-class AthenaClient(VectorStore):
+class AthenahClient(VectorStore):
     """
-    A client for interacting with the Athena AI chat model.
+    A client for interacting with the Athenah AI chat model.
 
     Attributes:
         id (str): The ID of the client.
@@ -90,7 +90,7 @@ class AthenaClient(VectorStore):
         stop: List[str] = [],
     ):
         """
-        Initializes the AthenaClient.
+        Initializes the AthenahClient.
 
         Args:
             id (str): The ID of the client.

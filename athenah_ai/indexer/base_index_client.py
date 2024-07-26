@@ -14,7 +14,7 @@ from langchain_text_splitters import Language
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
-from athenah_ai.client import AthenaClient
+from athenah_ai.client import AthenahClient
 from athenah_ai.indexer.splitters import code_splitter, text_splitter
 from athenah_ai.logger import logger
 
@@ -25,7 +25,7 @@ chunk_overlap: int = 0
 
 
 def summarize_file(content: str):
-    client = AthenaClient(id="id", model_name="gpt-3.5-turbo-16k")
+    client = AthenahClient(id="id", model_name="gpt-3.5-turbo-16k")
     response = client.base_prompt(
         """
             Describe and summarize what this document says.
@@ -40,7 +40,7 @@ def summarize_file(content: str):
 
 
 # def extract_functions(content: str, file_type: str):
-#         client = AthenaClient(id='id', model_name="gpt-3.5-turbo-16k")
+#         client = AthenahClient(id='id', model_name="gpt-3.5-turbo-16k")
 #         response = client.base_prompt(
 #             f"""
 #             Describe what each function in this {file_type} code does.

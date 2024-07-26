@@ -7,7 +7,7 @@ import logging
 
 from testing_config import BaseTestConfig
 
-from athenah_ai.indexer import AthenaIndexer
+from athenah_ai.indexer import AthenahIndexer
 from athenah_ai.client.vector_store import VectorStore
 
 
@@ -20,7 +20,7 @@ class TestIndexer(BaseTestConfig):
     dir_path: str = "./tests/fixtures"
 
     def test_index_file(cls):
-        indexer = AthenaIndexer("local", "id", "dist", "test_index_file", "v1")
+        indexer = AthenahIndexer("local", "id", "dist", "test_index_file", "v1")
         indexer.index_file(cls.file_path, "test_index_file")
         vector_store = VectorStore("local")
         db = vector_store.load("test_index_file", "dist", "v1")
@@ -28,7 +28,7 @@ class TestIndexer(BaseTestConfig):
         cls.assertEqual(num_indexs, 4)
 
     def test_index_dir(cls):
-        indexer = AthenaIndexer("local", "id", "dist", "test_index_dir", "v1")
+        indexer = AthenahIndexer("local", "id", "dist", "test_index_dir", "v1")
         indexer.index_dir(cls.dir_path, ["."], "test_index_dir")
         vector_store = VectorStore("local")
         db = vector_store.load("test_index_dir", "dist", "v1")

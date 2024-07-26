@@ -5,11 +5,11 @@ import os
 from typing import List
 
 from athenah_ai.utils.fs import write_file, read_file
-from athenah_ai.client import AthenaClient, get_token_total
+from athenah_ai.client import AthenahClient, get_token_total
 from athenah_ai.logger import logger
 
 
-class AthenaLabeler(object):
+class AthenahLabeler(object):
     storage_type: str = "local"
     id: str = ""
     name: str = ""
@@ -20,7 +20,7 @@ class AthenaLabeler(object):
         cls.id = id
         cls.name = name
         cls.version = version
-        cls.ai_client = AthenaClient(
+        cls.ai_client = AthenahClient(
             id=cls.id, model_group=f"bot-{cls.id}", model_name="gpt-3.5-turbo-16k"
         )
 
@@ -35,7 +35,7 @@ class AthenaLabeler(object):
 
     def process_file(
         cls,
-        ai_client: AthenaClient,
+        ai_client: AthenahClient,
         file_path: str,
         prompt: str,
         skip_files: List[str],
@@ -55,7 +55,7 @@ class AthenaLabeler(object):
             skip_files.append(file_path)
 
     def process_directory(
-        cls, ai_client: AthenaClient, dir: str, prompt: str, skip_files: List[str]
+        cls, ai_client: AthenahClient, dir: str, prompt: str, skip_files: List[str]
     ):
         for root, dirs, files in os.walk(dir):
             for file in files:

@@ -13,7 +13,7 @@ from athenah_ai.logger import logger
 load_dotenv()
 
 
-class AthenaIndexer(IndexClient):
+class AthenahIndexer(IndexClient):
     storage_type: str = "local"  # local or gcs
     id: str = ""
     dir: str = ""
