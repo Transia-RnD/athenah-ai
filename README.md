@@ -25,8 +25,8 @@ brew install tesseract
 To install Athenah AI, follow these steps:
 
 ```bash
-git clone https://github.com/Transia-RnD/athena-ai.git
-cd athena-ai
+git clone https://github.com/Transia-RnD/athenah-ai.git
+cd athenah-ai
 pip install -r requirements.txt
 ```
 
@@ -39,16 +39,16 @@ from athenah_ai.indexer import AthenahIndexer
 from athenah_ai.client import AthenahClient
 
 # Define the path to your project
-path: str = '/Users/darkmatter/projects/transia/athena-ai'
+path: str = '/Users/darkmatter/projects/transia/athenah-ai'
 
 # Initialize the indexer
-indexer = AthenahIndexer('local', 'id', 'dist', 'athena', 'v1')
+indexer = AthenahIndexer('local', 'id', 'dist', 'athenah', 'v1')
 
 # Build the index
-indexer.index_dir(path, ['.'], 'athena')
+indexer.index_dir(path, ['.'], 'athenah')
 
 # Initialize the client
-client = AthenahClient('id', 'dist', 'athena')
+client = AthenahClient('id', 'dist', 'athenah')
 
 # Send a prompt to the model and print the response
 response = client.prompt("For the Using Athenah AI part of the readme include ")
