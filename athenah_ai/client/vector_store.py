@@ -43,11 +43,19 @@ class VectorStore(object):
 
         if cls.storage_type == "gcs":
             logger.info("LOADING GCS FAISS")
-            cls.storage_client: GCPStorageClient = GCPStorageClient().add_client()
-            cls.bucket: Bucket = cls.storage_client.init_bucket(GCP_INDEX_BUCKET)
-            return cls.load_gcs(
-                name,
-            )
+            try:
+                return cls.load_local(
+                    dir,
+                    name,
+                    version,
+                )
+            except Exception as e:
+                cls.storage_client: GCPStorageClient = GCPStorageClient().add_client()
+                cls.bucket: Bucket = cls.storage_client.init_bucket(GCP_INDEX_BUCKET)
+                return cls.load_gcs(
+                    name,
+                    version,
+                )
 
     def load_local(cls, dir: str, name: str, version: str) -> FAISS:
         embedder = OpenAIEmbeddings(
@@ -63,8 +71,8 @@ class VectorStore(object):
         )
 
     @cached(cache)
-    def load_gcs(cls, name: str) -> FAISS:
-        blob = cls.bucket.blob(f"{name}.pkl")
+    def load_gcs(cls, name: str, version: str) -> FAISS:
+        blob = cls.bucket.blob(f"{name}/{version}/index.pkl")
         data_byte_array = BytesIO()
         blob.download_to_file(data_byte_array)
         docstore, index_to_docstore_id = pickle.loads(data_byte_array.getvalue())
@@ -73,7 +81,11 @@ class VectorStore(object):
             model=EMBEDDING_MODEL,
             chunk_size=CHUNK_SIZE,
         )
-        blob = cls.bucket.blob(f"{name}.faiss")
+        blob = cls.bucket.blob(f"{name}/{version}/index.faiss")
         blob.download_to_filename("/tmp/index.faiss")
         index = faiss.read_index("/tmp/index.faiss")
-        return FAISS(embedder, index, docstore, index_to_docstore_id)
+        store = FAISS(embedder, index, docstore, index_to_docstore_id)
+        cls.base_path: str = os.path.join(basedir, "dist")
+        cls.name_version_path: str = os.path.join(cls.base_path, f"{name}-{version}")
+        store.save_local(cls.name_version_path)
+        return store

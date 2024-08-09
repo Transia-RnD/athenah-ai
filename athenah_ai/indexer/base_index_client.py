@@ -239,10 +239,10 @@ class BaseIndexClient(object):
         if cls.storage_type == "gcs":
             logger.info("SAVING GCS FAISS")
             data_byte_array = pickle.dumps((store.docstore, store.index_to_docstore_id))
-            blob: Blob = cls.bucket.blob(f"{cls.name}.pkl")
+            blob: Blob = cls.bucket.blob(f"{cls.name}/{cls.version}/index.pkl")
             blob.upload_from_string(data_byte_array)
             temp_file_name = "/tmp/index.faiss"
             faiss.write_index(store.index, temp_file_name)
-            blob: Blob = cls.bucket.blob(f"{cls.name}.faiss")
+            blob: Blob = cls.bucket.blob(f"{cls.name}/{cls.version}/index.faiss")
             blob.upload_from_filename(temp_file_name)
             return
