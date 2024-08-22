@@ -38,6 +38,12 @@ class IndexClient(BaseIndexClient):
         os.makedirs(cls.name_path, exist_ok=True)
         super().__init__(cls.storage_type, cls.id, cls.dir, cls.name, cls.version)
 
+    def remove(cls, dest: str, is_dir: bool = False):
+        if is_dir:
+            shutil.rmtree(dest, ignore_errors=True)
+        else:
+            os.remove(dest)
+
     def copy(cls, source: str, dest: str, is_dir: bool = False):
         if is_dir:
             shutil.copytree(

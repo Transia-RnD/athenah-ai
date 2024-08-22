@@ -44,6 +44,7 @@ class AthenahIndexer(IndexClient):
         logger.info(f"SOURCE: {source}")
         logger.info(f"FILES: {files}")
         logger.info(f"DEST PATH: {dest_filepath}")
+        cls.remove(dest_filepath, True)
         cls.copy(source, dest_filepath, True)
         cls.build(source_name, files, full)
 
@@ -54,5 +55,6 @@ class AthenahIndexer(IndexClient):
         logger.info(f"NAME: {name}")
         logger.info(f"FILE PATH: {file_path}")
         logger.info(f"DEST PATH: {dest_filepath}")
+        cls.remove(dest_filepath, True)
         cls.copy(file_path, dest_filepath, False)
         cls.build(source_name, dest_filepath, full)
