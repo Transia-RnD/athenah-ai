@@ -49,7 +49,7 @@ class VectorStore(object):
                     name,
                     version,
                 )
-            except Exception as e:
+            except Exception:
                 cls.storage_client: GCPStorageClient = GCPStorageClient().add_client()
                 cls.bucket: Bucket = cls.storage_client.init_bucket(GCP_INDEX_BUCKET)
                 return cls.load_gcs(
