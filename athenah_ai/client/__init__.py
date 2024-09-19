@@ -16,6 +16,12 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain import hub
 from athenah_ai.client.vector_store import VectorStore
 from athenah_ai.logger import logger
+from langchain.agents import (
+    AgentType,
+    Tool,
+    initialize_agent,
+)
+from langchain.chains import RetrievalQA
 
 load_dotenv()
 
@@ -23,6 +29,13 @@ OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 OPENAI_API_MODEL: str = "gpt-4o-mini"
 MAX_TOKENS: int = 2000
+
+MODEL_MAP = {
+    "gpt-4o-mini": 16383,
+    "gpt-4o": 4095,
+    "gpt-4-turbo": 4095,
+    "gpt-4": 8191,
+}
 
 
 def get_token_total(prompt: str) -> int:
@@ -138,17 +151,21 @@ class AthenahClient(VectorStore):
         Returns:
             str: The generated response.
         """
+
+        if MAX_TOKENS + get_token_total(prompt) > MODEL_MAP[cls.model_name]:
+            cls.model_name = "gpt-4o-mini"
+
         cls.openai = ChatOpenAI(
             openai_api_key=OPENAI_API_KEY,
             model_name=cls.model_name,
             temperature=cls.temperature,
             max_tokens=MAX_TOKENS + get_token_total(prompt),
             n=cls.best_of,
-            model_kwargs={
-                "top_p": cls.top_p,
-                "frequency_penalty": cls.frequency_penalty,
-                "presence_penalty": cls.presence_penalty,
-            },
+            # model_kwargs={
+            #     "top_p": cls.top_p,
+            #     "frequency_penalty": cls.frequency_penalty,
+            #     "presence_penalty": cls.presence_penalty,
+            # },
         )
 
         num_indexs = cls.db.index_to_docstore_id
@@ -197,3 +214,32 @@ class AthenahClient(VectorStore):
             return assistant_reply
         except Exception as e:
             raise ValueError(f"failed to generate a prompt completion: {str(e)}")
+
+    def agent_prompt(cls, name: str, description: str, prompt: str):
+        tools = []
+        cls.openai = ChatOpenAI(
+            openai_api_key=OPENAI_API_KEY,
+            model_name=cls.model_name,
+            temperature=cls.temperature,
+            max_tokens=MAX_TOKENS + get_token_total(prompt),
+            n=cls.best_of,
+        )
+        chain = RetrievalQA.from_llm(
+            llm=cls.openai,
+            retriever=cls.db.as_retriever(),
+        )
+        tools.append(
+            Tool(
+                name=name,
+                func=chain.run,
+                description=description,
+            )
+        )
+        agent = initialize_agent(
+            tools,
+            cls.openai,
+            agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            verbose=True,
+            handle_parsing_errors=True,
+        )
+        return agent.run(prompt)
