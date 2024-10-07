@@ -27,7 +27,7 @@ load_dotenv()
 
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
-OPENAI_API_MODEL: str = "gpt-4o-mini"
+OPENAI_API_MODEL: str = "gpt-4o"
 MAX_TOKENS: int = 2000
 
 MODEL_MAP = {
