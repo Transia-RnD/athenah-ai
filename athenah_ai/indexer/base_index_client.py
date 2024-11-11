@@ -8,6 +8,7 @@ import faiss
 import pickle
 
 from basedir import basedir
+from dotenv import load_dotenv
 
 from unstructured.file_utils.filetype import FileType, detect_filetype
 from langchain_community.document_loaders import DirectoryLoader
@@ -22,6 +23,8 @@ from athenah_ai.libs.google.storage import GCPStorageClient
 from athenah_ai.client import AthenahClient
 from athenah_ai.indexer.splitters import code_splitter, text_splitter
 from athenah_ai.logger import logger
+
+load_dotenv()
 
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")

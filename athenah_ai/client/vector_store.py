@@ -7,6 +7,7 @@ import faiss
 import pickle
 
 from basedir import basedir
+from dotenv import load_dotenv
 
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -16,6 +17,8 @@ from cachetools import cached, TTLCache
 from google.cloud.storage.bucket import Bucket
 from athenah_ai.libs.google.storage import GCPStorageClient
 from athenah_ai.logger import logger
+
+load_dotenv()
 
 OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 EMBEDDING_MODEL: str = os.environ.get("EMBEDDING_MODEL")
